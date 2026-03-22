@@ -141,9 +141,9 @@ Po przeliczeniu punkt pojawi się **na mapie OSM**.
     st.divider()
     st.markdown("""
 **Autorzy:**
-[Imię Nazwisko 1]
-[Imię Nazwisko 2]
-[Imię Nazwisko 3]
+[I.I. 1]
+[J.D. 2]
+[S.K. 3]
 
 *Geoinformatyka | PM Szczecin | 2025/2026*
     """)
