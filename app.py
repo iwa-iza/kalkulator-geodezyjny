@@ -437,9 +437,9 @@ if funkcja.startswith("📏"):
         dy = abs(y2 - y1)
         st.success(f"### d = {d:.4f} m")
         c1, c2, c3 = st.columns(3)
-        c1.metric("Odległość d", f"{d:.4f} m")
-        c2.metric("Przyrost ΔX", f"{dx:.4f} m")
-        c3.metric("Przyrost ΔY", f"{dy:.4f} m")
+        c1.success(f"**Odległość d**\n\n### {d:.4f} m")
+        c2.success(f"**Przyrost ΔX**\n\n### {dx:.4f} m")
+        c3.success(f"**Przyrost ΔY**\n\n### {dy:.4f} m")
 
 
 # ═══════════════════════════════════════════════════════════════
@@ -465,9 +465,9 @@ elif funkcja.startswith("🧭"):
             d  = odleglosc(x1, y1, x2, y2)
             st.success(f"### A = {dms(az)}")
             c1, c2, c3 = st.columns(3)
-            c1.metric("Azymut [°]",   f"{az:.6f}°")
-            c2.metric("Azymut D°M'S\"", dms(az))
-            c3.metric("Odległość",     f"{d:.4f} m")
+            c1.success(f"**Azymut [°]**\n\n### {az:.6f}°")
+            c2.success(f"**Azymut D°M'S\"**\n\n### {dms(az)}")
+            c3.success(f"**Odległość**\n\n### {d:.4f} m")
             with st.expander("📌 Schemat geometryczny"):
                 st.pyplot(rysuj_azymut(x1, y1, x2, y2, az))
         except ValueError as e:
@@ -499,9 +499,9 @@ elif funkcja.startswith("📐"):
             p = pole_gaussa(pts)
             st.success(f"### P = {p:.4f} m²")
             c1, c2, c3 = st.columns(3)
-            c1.metric("Pole [m²]",   f"{p:.4f} m²")
-            c2.metric("Pole [ha]",   f"{p/10000:.6f} ha")
-            c3.metric("Liczba pkt.", str(len(pts)))
+            c1.success(f"**Pole [m²]**\n\n### {p:.4f} m²")
+            c2.success(f"**Pole [ha]**\n\n### {p/10000:.6f} ha")
+            c3.success(f"**Liczba pkt.**\n\n### {len(pts)}")
             with st.expander("📌 Wizualizacja wieloboku"):
                 st.pyplot(rysuj_wielobok(pts))
         except ValueError as e:
@@ -527,8 +527,8 @@ elif funkcja.startswith("➡️"):
         dx, dy = biegunowe_na_prostokatne(d, az)
         st.success(f"ΔX = {dx:.4f} m   |   ΔY = {dy:.4f} m")
         c1, c2 = st.columns(2)
-        c1.metric("Przyrost ΔX [m]", f"{dx:.4f}")
-        c2.metric("Przyrost ΔY [m]", f"{dy:.4f}")
+        c1.success(f"**Przyrost ΔX [m]**\n\n### {dx:.4f} m")
+        c2.success(f"**Przyrost ΔY [m]**\n\n### {dy:.4f} m")
 
 
 # ═══════════════════════════════════════════════════════════════
@@ -549,9 +549,9 @@ elif funkcja.startswith("⬅️"):
             d, az = prostokatne_na_biegunowe(dx, dy)
             st.success(f"d = {d:.4f} m   |   A = {dms(az)}")
             c1, c2, c3 = st.columns(3)
-            c1.metric("Odległość d", f"{d:.4f} m")
-            c2.metric("Azymut [°]",  f"{az:.6f}°")
-            c3.metric("A [D°M'S\"]", dms(az))
+            c1.success(f"**Odległość d**\n\n### {d:.4f} m")
+            c2.success(f"**Azymut [°]**\n\n### {az:.6f}°")
+            c3.success(f"**A [D°M'S\"]**\n\n### {dms(az)}")
         except ValueError as e:
             st.error(str(e))
 
@@ -602,86 +602,91 @@ elif funkcja.startswith("📍"):
 elif funkcja.startswith("🗺️"):
     st.subheader("🗺️ Przeliczanie układów współrzędnych")
 
-    c1, c2 = st.columns(2)
-    uklad_z  = c1.selectbox("Z układu:",  list(UKLADY.keys()), index=0)
-    uklad_na = c2.selectbox("Na układ:", list(UKLADY.keys()), index=1)
+    if "przelicz_wykonany" not in st.session_state:
+        st.session_state.przelicz_wykonany = False
+    if "x_wynik" not in st.session_state:
+        st.session_state.x_wynik = None
+    if "y_wynik" not in st.session_state:
+        st.session_state.y_wynik = None
+    if "uklad_z_wynik" not in st.session_state:
+        st.session_state.uklad_z_wynik = ""
+    if "uklad_na_wynik" not in st.session_state:
+        st.session_state.uklad_na_wynik = ""
 
-    # Podpowiedź zakresu
-    if "WGS84" in uklad_z:
-        st.info(
-            "📌 Dla WGS84 podaj współrzędne **geograficzne** w stopniach dziesiętnych.\n\n"
-            "Polska: szerokość φ = 49–55°N, długość λ = 14–24°E"
-        )
-        c1, c2 = st.columns(2)
-        x_in = c1.number_input(
-            "Szerokość geogr. φ [°N]", value=52.2297,
-            format="%.6f", min_value=49.0, max_value=55.0,
-            help="Np. Warszawa: 52.2297")
-        y_in = c2.number_input(
-            "Długość geogr. λ [°E]",   value=21.0122,
-            format="%.6f", min_value=14.0, max_value=25.0,
-            help="Np. Warszawa: 21.0122")
-    else:
-        st.info("📌 Podaj współrzędne w **metrach** (układ płaski prostokątny).")
-        c1, c2 = st.columns(2)
-        x_in = c1.number_input("X [m]", value=479952.0, format="%.3f",
-                                help="Współrzędna X w metrach")
-        y_in = c2.number_input("Y [m]", value=637099.0, format="%.3f",
-                                help="Współrzędna Y w metrach")
+    # ── Selectboxy NA ZEWNĄTRZ formularza ─────────────
+    col1, col2 = st.columns(2)
+    uklad_z = col1.selectbox("Z układu:", list(UKLADY.keys()), index=0, key="sel_z")
+    uklad_na = col2.selectbox("Na układ:", list(UKLADY.keys()), index=1, key="sel_na")
 
-    if st.button("🔢 Przelicz", type="primary", use_container_width=True):
+
+    # ── Formularz tylko z polami liczbowymi ───────────
+    with st.form("przelicz_form"):
+        if "WGS84" in uklad_z:
+            st.info("Podaj współrzędne geograficzne w stopniach dziesiętnych")
+            col1, col2 = st.columns(2)
+            x_in = col1.number_input("Szer. φ [°N]", value=52.2297,
+                                     min_value=49.0, max_value=55.0)
+            y_in = col2.number_input("Dł. λ [°E]", value=21.0122,
+                                     min_value=14.0, max_value=25.0)
+        else:
+            st.info("Podaj współrzędne w metrach (układ płaski)")
+            col1, col2 = st.columns(2)
+            x_in = col1.number_input("X [m]", value=479952.0)
+            y_in = col2.number_input("Y [m]", value=637099.0)
+
+        przeliczany = st.form_submit_button("🔢 Przelicz", type="primary")
+
+    if przeliczany:
         if uklad_z == uklad_na:
-            st.warning("Wybrane układy są identyczne – brak przeliczenia.")
+            st.warning("Układy są takie same – brak przeliczenia.")
         else:
             try:
                 x_out, y_out = przelicz_uklad(x_in, y_in, uklad_z, uklad_na)
-                st.success(f"**{uklad_z}  →  {uklad_na}**")
-
-                if "WGS84" in uklad_na:
-                    c1, c2 = st.columns(2)
-                    c1.metric("Szerokość φ [°N]", f"{x_out:.6f}°")
-                    c2.metric("Długość λ [°E]",   f"{y_out:.6f}°")
-                    st.info(f"Współrzędne GPS:  **{x_out:.6f} N,  {y_out:.6f} E**")
-                    lat, lon = x_out, y_out
-                else:
-                    c1, c2 = st.columns(2)
-                    c1.metric("X [m]", f"{x_out:.3f}")
-                    c2.metric("Y [m]", f"{y_out:.3f}")
-                    # przelicz na WGS84 do mapy
-                    t_wgs = Transformer.from_crs(
-                        UKLADY[uklad_na], "EPSG:4326", always_xy=False
-                    )
-                    lat, lon = t_wgs.transform(x_out, y_out)
-
-                # ── MAPA OSM (folium) ─────────────────────────
-                st.subheader("📍 Lokalizacja punktu na mapie")
-                m = folium.Map(
-                    location=[lat, lon],
-                    zoom_start=14,
-                    tiles="OpenStreetMap"
-                )
-                folium.Marker(
-                    location=[lat, lon],
-                    popup=(
-                        f"<b>Wyznaczony punkt</b><br>"
-                        f"φ = {lat:.6f}°N<br>"
-                        f"λ = {lon:.6f}°E<br>"
-                        f"Układ: {uklad_na}"
-                    ),
-                    icon=folium.Icon(color="red", icon="crosshairs",
-                                     prefix="fa")
-                ).add_to(m)
-                folium.Circle(
-                    location=[lat, lon],
-                    radius=50,
-                    color="#3b82f6",
-                    fill=True, fill_opacity=0.15
-                ).add_to(m)
-                st_folium(m, width=None, height=380)
-
-                # schemat stref
-                with st.expander("ℹ️ Schemat stref PUWG 2000"):
-                    st.pyplot(rysuj_strefy_2000())
-
+                st.session_state.przelicz_wykonany = True
+                st.session_state.x_wynik = x_out
+                st.session_state.y_wynik = y_out
+                st.session_state.uklad_z_wynik = uklad_z
+                st.session_state.uklad_na_wynik = uklad_na
             except Exception as e:
                 st.error(f"Błąd przeliczenia: {e}")
+
+    if st.session_state.przelicz_wykonany:
+        st.success(f"**{st.session_state.uklad_z_wynik}  →  {st.session_state.uklad_na_wynik}**")
+        col1, col2 = st.columns(2)
+        if "WGS84" in st.session_state.uklad_na_wynik:
+            col1.success(f"**Szerokość φ [°N]**\n\n### {st.session_state.x_wynik:.6f}°")
+            col2.success(f"**Długość λ [°E]**\n\n### {st.session_state.y_wynik:.6f}°")
+        else:
+            col1, col2 = st.columns(2)
+            col1.success(f"**X [m]**\n\n### {st.session_state.x_wynik:.3f} m")
+            col2.success(f"**Y [m]**\n\n### {st.session_state.y_wynik:.3f} m")
+
+
+        if "WGS84" in st.session_state.uklad_na_wynik:
+            lat = st.session_state.x_wynik
+            lon = st.session_state.y_wynik
+        else:
+            t_wgs = Transformer.from_crs(
+                UKLADY[st.session_state.uklad_na_wynik],
+                "EPSG:4326",
+                always_xy=False
+            )
+            lat, lon = t_wgs.transform(
+                st.session_state.x_wynik,
+                st.session_state.y_wynik
+            )
+
+        st.subheader("📍 Lokalizacja na mapie")
+        m = folium.Map(location=[lat, lon], zoom_start=14)
+        folium.Marker(
+            location=[lat, lon],
+            popup=f"φ={lat:.6f}°  λ={lon:.6f}°",
+            icon=folium.Icon(color="red")
+        ).add_to(m)
+        st_folium(m, width=None, height=400)
+
+        if st.button("🔄 Nowe przeliczenie"):
+            st.session_state.przelicz_wykonany = False
+            st.session_state.x_wynik = None
+            st.session_state.y_wynik = None
+            st.rerun()
