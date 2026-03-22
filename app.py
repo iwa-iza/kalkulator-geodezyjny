@@ -1,7 +1,7 @@
 # ═══════════════════════════════════════════════════════════════
 #  KALKULATOR GEODEZYJNY
 #  Politechnika Morska w Szczecinie | Geoinformatyka | PiG
-#  Autorzy: [Imię Nazwisko 1], [Imię Nazwisko 2], [Imię Nazwisko 3]
+#  Autorzy: [I.I. 1], [J.D. 2], [S.K. 3]
 # ═══════════════════════════════════════════════════════════════
 
 import streamlit as st
